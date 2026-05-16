@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "net.snapcam.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "CameraMixin",
+    "EntityTurnMixin",
+    "GuiMixin",
+    "MinecraftMixin",
+    "XaeroHudMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

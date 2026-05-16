@@ -1,0 +1,150 @@
+{
+  "textures": {
+    "particle": "snapcam:item/camera_side",
+    "side":     "snapcam:item/camera_side",
+    "front":    "snapcam:item/camera_front",
+    "back":     "snapcam:item/camera_back",
+    "tripod":   "snapcam:item/camera_tripod"
+  },
+  "elements": [
+    {
+      "comment": "south leg upper",
+      "from": [7, 0, 7],
+      "to":   [9, 16, 9],
+      "rotation": {"origin": [8, 16, 8], "axis": "x", "angle": -22.5},
+      "faces": {
+        "north": {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "south": {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "east":  {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "west":  {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "up":    {"uv": [0, 0, 4,  2], "texture": "#tripod"},
+        "down":  {"uv": [0, 0, 4,  2], "texture": "#tripod"}
+      }
+    },
+    {
+      "comment": "south leg lower",
+      "from": [7, -16, 7],
+      "to":   [9, 0, 9],
+      "rotation": {"origin": [8, 16, 8], "axis": "x", "angle": -22.5},
+      "faces": {
+        "north": {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "south": {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "east":  {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "west":  {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "up":    {"uv": [0, 0, 4,  2], "texture": "#tripod"},
+        "down":  {"uv": [0, 0, 4,  2], "texture": "#tripod"}
+      }
+    },
+    {
+      "comment": "north leg upper",
+      "from": [7, 0, 7],
+      "to":   [9, 16, 9],
+      "rotation": {"origin": [8, 16, 8], "axis": "x", "angle": 22.5},
+      "faces": {
+        "north": {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "south": {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "east":  {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "west":  {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "up":    {"uv": [0, 0, 4,  2], "texture": "#tripod"},
+        "down":  {"uv": [0, 0, 4,  2], "texture": "#tripod"}
+      }
+    },
+    {
+      "comment": "north leg lower",
+      "from": [7, -16, 7],
+      "to":   [9, 0, 9],
+      "rotation": {"origin": [8, 16, 8], "axis": "x", "angle": 22.5},
+      "faces": {
+        "north": {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "south": {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "east":  {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "west":  {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "up":    {"uv": [0, 0, 4,  2], "texture": "#tripod"},
+        "down":  {"uv": [0, 0, 4,  2], "texture": "#tripod"}
+      }
+    },
+    {
+      "comment": "east leg upper",
+      "from": [7, 0, 7],
+      "to":   [9, 16, 9],
+      "rotation": {"origin": [8, 16, 8], "axis": "z", "angle": -22.5},
+      "faces": {
+        "north": {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "south": {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "east":  {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "west":  {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "up":    {"uv": [0, 0, 4,  2], "texture": "#tripod"},
+        "down":  {"uv": [0, 0, 4,  2], "texture": "#tripod"}
+      }
+    },
+    {
+      "comment": "east leg lower",
+      "from": [7, -16, 7],
+      "to":   [9, 0, 9],
+      "rotation": {"origin": [8, 16, 8], "axis": "z", "angle": -22.5},
+      "faces": {
+        "north": {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "south": {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "east":  {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "west":  {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "up":    {"uv": [0, 0, 4,  2], "texture": "#tripod"},
+        "down":  {"uv": [0, 0, 4,  2], "texture": "#tripod"}
+      }
+    },
+    {
+      "comment": "west leg upper",
+      "from": [7, 0, 7],
+      "to":   [9, 16, 9],
+      "rotation": {"origin": [8, 16, 8], "axis": "z", "angle": 22.5},
+      "faces": {
+        "north": {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "south": {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "east":  {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "west":  {"uv": [0, 0, 16, 8], "texture": "#tripod"},
+        "up":    {"uv": [0, 0, 4,  2], "texture": "#tripod"},
+        "down":  {"uv": [0, 0, 4,  2], "texture": "#tripod"}
+      }
+    },
+    {
+      "comment": "west leg lower",
+      "from": [7, -16, 7],
+      "to":   [9, 0, 9],
+      "rotation": {"origin": [8, 16, 8], "axis": "z", "angle": 22.5},
+      "faces": {
+        "north": {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "south": {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "east":  {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "west":  {"uv": [0, 8, 16, 16], "texture": "#tripod"},
+        "up":    {"uv": [0, 0, 4,  2], "texture": "#tripod"},
+        "down":  {"uv": [0, 0, 4,  2], "texture": "#tripod"}
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [20, 135, 0],
+      "translation": [0, 4, 0],
+      "scale": [0.38, 0.38, 0.38]
+    },
+    "ground": {
+      "rotation": [0, 0, 0],
+      "translation": [0, 2, 0],
+      "scale": [0.25, 0.25, 0.25]
+    },
+    "fixed": {
+      "rotation": [0, 0, 0],
+      "translation": [0, 0, 0],
+      "scale": [1, 1, 1]
+    },
+    "thirdperson_righthand": {
+      "rotation": [0, -90, 0],
+      "translation": [0, 3, -1],
+      "scale": [0.25, 0.25, 0.25]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, -90, 0],
+      "translation": [1, 4, -2],
+      "scale": [0.28, 0.28, 0.28]
+    }
+  }
+}

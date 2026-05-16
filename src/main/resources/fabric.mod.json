@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "snapcam",
+  "version": "${version}",
+  "name": "Snapcam",
+  "description": "Placeable camera entity for Fabric servers — switch POV, take screenshots, no commands needed.",
+  "authors": ["Lasrach <lasrach@gmail.com>"],
+  "icon": "assets/snapcam/icon.png",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["net.snapcam.SnapcamMod"],
+    "client": ["net.snapcam.SnapcamClient"],
+    "modmenu": ["net.snapcam.client.ModMenuIntegration"]
+  },
+  "mixins": ["snapcam.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.15",
+    "fabric-api": "*",
+    "minecraft": "~1.21.1"
+  },
+  "recommends": {
+    "modmenu": "*"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "textures": {
+    "particle": "snapcam:item/camera_side",
+    "side":     "snapcam:item/camera_side",
+    "front":    "snapcam:item/camera_front",
+    "back":     "snapcam:item/camera_back"
+  },
+  "elements": [
+    {
+      "from": [3, 16, 1.5],
+      "to":   [13, 26, 14.5],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#back"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#front"},
+        "east":  {"uv": [0, 0, 16, 16], "texture": "#side"},
+        "west":  {"uv": [0, 0, 16, 16], "texture": "#side", "rotation": 180},
+        "up":    {"uv": [0, 0, 16, 16], "texture": "#side", "rotation": 270},
+        "down":  {"uv": [0, 0, 16, 16], "texture": "#side", "rotation": 270}
+      }
+    }
+  ],
+  "display": {
+    "fixed": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]}
+  }
+}
