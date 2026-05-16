@@ -22,6 +22,9 @@ import net.snapcam.item.ModItems;
 import net.snapcam.network.AttachCameraPacket;
 
 public class SnapcamClient implements ClientModInitializer {
+    private boolean prevUseDown = false;
+    private boolean prevSneakDown = false;
+
     @Override
     public void onInitializeClient() {
         EntityRendererRegistry.register(ModEntities.CAMERA, CameraEntityRenderer::new);
@@ -31,44 +34,61 @@ public class SnapcamClient implements ClientModInitializer {
 
         // Intercept clicks BEFORE Minecraft.handleKeybinds() consumes them
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            // Rising-edge detection for Use and Sneak — fires once per press for both
+            // keyboard (consumeClick) and controller (isDown edge via Controlify).
+            boolean useDown = client.options.keyUse.isDown();
+            boolean useJustPressed = client.options.keyUse.consumeClick()
+                    || (useDown && !prevUseDown);
+            prevUseDown = useDown;
+
+            // Sneak: combine key binding, player entity state, and rising-edge.
+            boolean sneakDown = client.options.keyShift.isDown()
+                    || (client.player != null && client.player.isShiftKeyDown());
+            boolean sneakJustPressed = client.options.keyShift.consumeClick()
+                    || (sneakDown && !prevSneakDown);
+            prevSneakDown = sneakDown;
+
             if (EntityCameraController.isActive()) {
-                // Placed camera: right-click = screenshot, left-click = suppress
-                if (client.options.keyUse.consumeClick()) {
+                // Sneak to exit (checked before screenshot)
+                if (sneakDown || sneakJustPressed) {
+                    EntityCameraController.requestExit();
+                    return;
+                }
+                // Placed camera: Use = screenshot, Attack = suppress
+                if (useJustPressed && EntityCameraController.canShoot()) {
                     EntityCameraController.requestScreenshot();
                 }
                 client.options.keyAttack.consumeClick();
 
             } else if (HandCameraController.isActive()) {
-                // Hand photo mode: shift released = exit, right-click = shoot, left-click = suppress
-                if (!client.options.keyShift.isDown()) {
+                // Hand photo mode: sneak released = exit, Use = shoot, Attack = suppress
+                if (!sneakDown) {
                     HandCameraController.exit();
-                } else if (HandCameraController.canShoot() && client.options.keyUse.consumeClick()) {
+                } else if (HandCameraController.canShoot() && useJustPressed) {
                     HandCameraController.requestScreenshot();
-                } else {
-                    client.options.keyUse.consumeClick(); // drain while cooling down
                 }
                 client.options.keyAttack.consumeClick();
 
             } else {
-                // Detect shift+click on a placed camera entity → start timed shot countdown.
+                // Detect sneak+Use on a placed camera entity → start timed shot countdown.
                 // This branch must run first so it takes priority over hand photo mode.
                 boolean startedTimer = false;
-                if (client.player != null && client.options.keyShift.isDown()) {
+                if (client.player != null && sneakDown) {
                     HitResult hit = client.hitResult;
                     if (hit instanceof EntityHitResult ehr && ehr.getEntity() instanceof CameraEntity cam) {
-                        if (client.options.keyUse.consumeClick()) {
+                        if (useJustPressed) {
                             TimedShotController.start(cam.getId());
                             startedTimer = true;
                         }
                     }
                 }
 
-                // Normal: shift + holding camera item + right-click = enter hand photo mode
+                // Normal: sneak + holding camera item + Use = enter hand photo mode
                 if (!startedTimer
                         && client.player != null
-                        && client.options.keyShift.isDown()
+                        && sneakDown
                         && client.player.getMainHandItem().getItem() == ModItems.CAMERA_ITEM
-                        && client.options.keyUse.consumeClick()) {
+                        && useJustPressed) {
                     HandCameraController.enter();
                 }
             }

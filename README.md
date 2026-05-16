@@ -74,6 +74,7 @@ placed it.
 |-----|--------|
 | Xaero's Minimap | Supported — minimap is hidden while in camera view |
 | Mod Menu | Supported — mod appears in the list (no config screen yet) |
+| Controlify | Supported — set Sneak to **held** mode (not toggle) in Controlify settings |
 | Other HUD mods | May render on top of camera view; MIT licensed, feel free to patch |
 
 Requires the mod on **both server and client**. The POV switch is coordinated
@@ -89,7 +90,7 @@ Minecraft and Fabric).
 git clone <repo>
 cd snapcam
 ./gradlew build
-# → build/libs/snapcam-0.1.0.jar
+# → build/libs/snapcam-0.2.0.jar
 ```
 
 Copy the jar to the `mods/` folder on the server and every client.

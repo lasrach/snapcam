@@ -59,6 +59,7 @@ Die Kamera-Entität angreifen, um sie zu zerstören. Sie lässt das Kamera-Item 
 |-----|--------|
 | Xaero's Minimap | Unterstützt — Minimap wird in der Kameraperspektive ausgeblendet |
 | Mod Menu | Unterstützt — Mod erscheint in der Liste (noch kein Konfigurationsmenü) |
+| Controlify | Unterstützt — Schleichen in den Controlify-Einstellungen auf **Halten** stellen (nicht Umschalten) |
 | Andere HUD-Mods | Können über die Kamerasicht hinausragen; MIT-Lizenz, gerne selbst patchen |
 
 Der Mod muss auf **Server und Client** installiert sein. Der Perspektivwechsel wird serverseitig koordiniert; Clients ohne den Mod können auf einem modifizierten Server nicht versehentlich die Kameransicht aktivieren.
@@ -71,7 +72,7 @@ Der Mod muss auf **Server und Client** installiert sein. Der Perspektivwechsel w
 git clone <repo>
 cd snapcam
 ./gradlew build
-# → build/libs/snapcam-0.1.0.jar
+# → build/libs/snapcam-0.2.0.jar
 ```
 
 Die JAR-Datei in den `mods/`-Ordner auf dem Server und bei jedem Client kopieren.

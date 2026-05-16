@@ -25,9 +25,14 @@ public final class EntityCameraController {
     private static boolean timedShotMode = false;
     private static int flashTicks = 0;
     private static final int FLASH_DURATION = 6;
+    private static int attachCooldown = 0;
+    private static final int ATTACH_COOLDOWN = 3;
+
+    public static boolean canShoot() { return active && attachCooldown == 0; }
 
     public static void attach(int cameraEntityId) {
         if (active) detach();
+        attachCooldown = ATTACH_COOLDOWN;
 
         Entity cameraEntity = MC.level.getEntity(cameraEntityId);
         if (cameraEntity == null) return;
@@ -92,6 +97,14 @@ public final class EntityCameraController {
 
     public static boolean isTimedShotMode() { return timedShotMode; }
 
+    public static void requestExit() {
+        if (!active) return;
+        ClientPlayNetworking.send(new DetachCameraPacket(attachedEntityId));
+        detach();
+    }
+
+    public static int getAttachedEntityId() { return attachedEntityId; }
+
     public static void detach() {
         if (!active) return;
         timedShotMode = false;
@@ -117,6 +130,7 @@ public final class EntityCameraController {
     /** Called each client tick while active. Handles sneak-to-exit and screenshot. */
     public static void tick() {
         if (flashTicks > 0) flashTicks--;
+        if (attachCooldown > 0) attachCooldown--;
         if (!active) return;
 
         // Guard: disconnect or world change
@@ -131,12 +145,7 @@ public final class EntityCameraController {
             return;
         }
 
-        // Sneak to exit
-        if (MC.options.keyShift.consumeClick()) {
-            ClientPlayNetworking.send(new DetachCameraPacket(attachedEntityId));
-            detach();
-            return;
-        }
+        // Sneak-to-exit is handled in START_CLIENT_TICK (SnapcamClient) for controller compat.
 
         // Keep player body still: clear movement input each tick
         var inp = MC.player.input;
