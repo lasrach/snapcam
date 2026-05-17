@@ -1,0 +1,40 @@
+{
+  "textures": {
+    "particle":    "snapcam:item/camera_front",
+    "front":       "snapcam:item/camera_front",
+    "lens_edge":   "snapcam:item/camera_lens_edge",
+    "barrel_face": "snapcam:item/camera_lens_barrel_face",
+    "barrel_side": "snapcam:item/camera_lens_barrel_side"
+  },
+  "elements": [
+    {
+      "comment": "Lens plate — 8x8x1 vis-px ring that moves with the barrel. Depth 1 vis px = 1.25 model units.",
+      "from": [3, 16, 12.75],
+      "to":   [13, 26, 14.0],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#lens_edge"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#front"},
+        "east":  {"uv": [0, 0, 16, 16], "texture": "#lens_edge"},
+        "west":  {"uv": [0, 0, 16, 16], "texture": "#lens_edge"},
+        "up":    {"uv": [0, 0, 16, 16], "texture": "#lens_edge"},
+        "down":  {"uv": [0, 0, 16, 16], "texture": "#lens_edge"}
+      }
+    },
+    {
+      "comment": "Lens barrel — 6x6 vis px (7.5x7.5 model), 8.5 vis px deep (10.625 model). Stays inside body at max zoom.",
+      "from": [4.25, 17.25, 3.275],
+      "to":   [11.75, 24.75, 13.9],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#barrel_side"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#barrel_face"},
+        "east":  {"uv": [0, 0, 16, 16], "texture": "#barrel_side"},
+        "west":  {"uv": [0, 0, 16, 16], "texture": "#barrel_side"},
+        "up":    {"uv": [0, 0, 16, 16], "texture": "#barrel_side"},
+        "down":  {"uv": [0, 0, 16, 16], "texture": "#barrel_side"}
+      }
+    }
+  ],
+  "display": {
+    "fixed": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]}
+  }
+}

@@ -26,19 +26,24 @@ public class CameraItem extends Item {
         if (!level.isClientSide) {
             Direction face = context.getClickedFace();
             boolean onGround = (face == Direction.UP);
+            boolean onCeiling = (face == Direction.DOWN);
 
-            // Centre on the clicked block face, then push outward for wall mounts
+            // Centre on the clicked block face, then push outward for wall/ceiling mounts
             BlockPos blockPos = context.getClickedPos();
             Vec3 faceNormal = Vec3.atLowerCornerOf(face.getNormal());
             Vec3 blockCenter = new Vec3(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5);
             Vec3 pos = blockCenter.add(faceNormal.scale(0.5)); // face surface centre
             if (!onGround) {
-                pos = pos.add(faceNormal.scale(0.3));
+                // Wall: push entity to bracket-pivot distance (0.488) so blue-line origin matches camera body centre.
+                // Ceiling: push 0.3 down so the plate top lands on the ceiling block face.
+                pos = pos.add(faceNormal.scale(onCeiling ? 0.3 : 0.488));
             }
 
             float yRot;
             if (onGround) {
                 yRot = (float) Math.toDegrees(Math.atan2(-(player.getX() - pos.x), player.getZ() - pos.z));
+            } else if (onCeiling) {
+                yRot = player.getYRot();
             } else {
                 // Entity faces outward from the wall (matches face normal direction).
                 yRot = face.toYRot();
@@ -54,6 +59,8 @@ public class CameraItem extends Item {
             CameraEntity camera = new CameraEntity(ModEntities.CAMERA, level);
             camera.setNoGravity(true);
             camera.setPlacedOnGround(onGround);
+            if (!onGround && !onCeiling) camera.setWallYaw(yRot);
+            if (onCeiling) camera.setIsCeiling(true);
             camera.moveTo(pos.x, pos.y, pos.z, yRot, 0.0f);
             level.addFreshEntity(camera);
 

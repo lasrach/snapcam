@@ -6,8 +6,10 @@
     "CameraMixin",
     "EntityEyeHeightMixin",
     "EntityTurnMixin",
+    "GameRendererMixin",
     "GuiMixin",
     "MinecraftMixin",
+    "MouseHandlerMixin",
     "XaeroHudMixin"
   ],
   "injectors": {

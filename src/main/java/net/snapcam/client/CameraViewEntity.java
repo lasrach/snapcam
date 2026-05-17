@@ -20,10 +20,11 @@ public class CameraViewEntity extends AbstractClientPlayer {
 
     @Override
     public void tick() {
-        // No movement; position is fixed at the placed camera
         xOld = getX();
         yOld = getY();
         zOld = getZ();
+        yRotO = getYRot();
+        xRotO = getXRot();
     }
 
     @Override

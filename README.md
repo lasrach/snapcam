@@ -6,7 +6,7 @@ whichever style suits the moment:
 - **Handheld** — hold the camera item, crouch and press Use to enter handheld
   mode, then shoot at any time while crouching. Release crouch to exit.
 - **Live view** — place the camera in the world, walk up to it, and step inside:
-  look around freely and shoot whenever you're ready.
+  look around freely, zoom in/out, and shoot whenever you're ready.
 - **Self-timer** — place the camera, crouch-click it from close range to start a
   5-second countdown, then get into the shot before it fires.
 
@@ -25,6 +25,8 @@ press Use on any block face:
 - **On a flat surface** — places a tripod camera on the ground, lens facing toward
   you.
 - **On a side face** — mounts the camera to the wall, lens pointing outward.
+- **On the underside of a block** — mounts the camera to the ceiling. A centred
+  plate grips the block above; a rod hangs down to the pan/tilt head.
 
 The camera is a server-side entity: every player on the server sees it.
 
@@ -35,6 +37,9 @@ Use an unoccupied camera to switch your POV to it. While inside:
 - Your character stays at its original position (visible to other players and in
   your own screenshots).
 - Mouse / stick input rotates the camera view.
+- Scroll wheel or **W / S** zooms in and out (12–200 mm equivalent focal length,
+  shown in the viewfinder HUD). Zoom is saved per camera and restored the next
+  time any player enters it. The lens barrel extends on the model as a visual cue.
 - All movement input is suppressed — the camera is fixed.
 - The vanilla HUD (hotbar, crosshair, health bar) is hidden.
 - Press **Sneak** to exit and return to your own body.
@@ -46,8 +51,9 @@ Only one player can occupy a camera at a time.
 | Situation | Input | Result |
 |-----------|-------|--------|
 | Inside camera view | Use / trigger | Screenshot from camera POV |
+| Inside camera view | Scroll / W / S | Zoom in or out |
 | Outside, holding Camera item | Hold Shift + Use (not aimed at a camera) | Enters hand-held mode — Use to shoot, release Shift to exit |
-| Outside, close to a placed camera | Shift + Use the camera | 5-second countdown, then auto-shot from that camera |
+| Outside, holding Camera item (within ~20 blocks of a camera) | Shift + Use the camera | 5-second countdown, then auto-shot from that camera |
 
 Screenshots are saved by Minecraft's normal screenshot system
 (`screenshots/` folder, sequential numbering). A white flash confirms each
@@ -81,6 +87,22 @@ Requires the mod on **both server and client**. The POV switch is coordinated
 server-side; clients without the mod cannot accidentally enter camera view on a
 modded server.
 
+### Recommended server setting — interaction range
+
+Holding the Camera item extends entity interaction range to ~20 blocks on the
+client, allowing timed shots to be triggered from across a room. On **Paper**
+servers, raise the server-side limit to match so the extended reach isn't
+silently clamped:
+
+```yaml
+# paper-global.yml
+misc:
+  max-entity-reach: 20.0
+```
+
+On a **Fabric** server the equivalent is provided by the
+[Reach Entity Attributes](https://modrinth.com/mod/reach-entity-attributes) mod.
+
 ## Building
 
 **Requirements:** Java 21, internet access for first build (Gradle downloads
@@ -90,7 +112,7 @@ Minecraft and Fabric).
 git clone <repo>
 cd snapcam
 ./gradlew build
-# → build/libs/snapcam-0.2.0.jar
+# → build/libs/snapcam-0.3.0.jar
 ```
 
 Copy the jar to the `mods/` folder on the server and every client.

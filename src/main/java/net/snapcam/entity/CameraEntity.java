@@ -11,7 +11,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -28,6 +30,12 @@ public class CameraEntity extends Entity {
             SynchedEntityData.defineId(CameraEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> PLACED_ON_GROUND =
             SynchedEntityData.defineId(CameraEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> WALL_YAW =
+            SynchedEntityData.defineId(CameraEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> IS_CEILING =
+            SynchedEntityData.defineId(CameraEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> ZOOM_FOCAL_MM =
+            SynchedEntityData.defineId(CameraEntity.class, EntityDataSerializers.FLOAT);
 
     public CameraEntity(EntityType<? extends CameraEntity> type, Level level) {
         super(type, level);
@@ -38,6 +46,9 @@ public class CameraEntity extends Entity {
         builder.define(OWNER_UUID, Optional.empty());
         builder.define(VIEWER_UUID, Optional.empty());
         builder.define(PLACED_ON_GROUND, true);
+        builder.define(WALL_YAW, 0.0f);
+        builder.define(IS_CEILING, false);
+        builder.define(ZOOM_FOCAL_MM, 0.0f);
     }
 
     @Override
@@ -101,7 +112,23 @@ public class CameraEntity extends Entity {
 
     public void setPlacedOnGround(boolean value) {
         entityData.set(PLACED_ON_GROUND, value);
+        refreshDimensions();
     }
+
+    public float getWallYaw() { return entityData.get(WALL_YAW); }
+
+    public void setWallYaw(float value) { entityData.set(WALL_YAW, value); }
+
+    public boolean isCeiling() { return entityData.get(IS_CEILING); }
+
+    public void setIsCeiling(boolean value) {
+        entityData.set(IS_CEILING, value);
+        refreshDimensions();
+    }
+
+    public float getZoomFocalMm() { return entityData.get(ZOOM_FOCAL_MM); }
+
+    public void setZoomFocalMm(float value) { entityData.set(ZOOM_FOCAL_MM, value); }
 
     public Optional<UUID> getOwnerUuid() {
         return entityData.get(OWNER_UUID);
@@ -115,6 +142,9 @@ public class CameraEntity extends Entity {
     public void addAdditionalSaveData(CompoundTag tag) {
         getOwnerUuid().ifPresent(uuid -> tag.putUUID("Owner", uuid));
         tag.putBoolean("OnGround", isPlacedOnGround());
+        tag.putFloat("WallYaw", getWallYaw());
+        tag.putBoolean("IsCeiling", isCeiling());
+        if (getZoomFocalMm() > 0f) tag.putFloat("ZoomFocalMm", getZoomFocalMm());
     }
 
     @Override
@@ -125,6 +155,15 @@ public class CameraEntity extends Entity {
         if (tag.contains("OnGround")) {
             entityData.set(PLACED_ON_GROUND, tag.getBoolean("OnGround"));
         }
+        if (tag.contains("WallYaw")) {
+            entityData.set(WALL_YAW, tag.getFloat("WallYaw"));
+        }
+        if (tag.contains("IsCeiling")) {
+            entityData.set(IS_CEILING, tag.getBoolean("IsCeiling"));
+        }
+        if (tag.contains("ZoomFocalMm")) {
+            entityData.set(ZOOM_FOCAL_MM, tag.getFloat("ZoomFocalMm"));
+        }
         // Viewer is never persisted — cleared on world reload
     }
 
@@ -134,22 +173,45 @@ public class CameraEntity extends Entity {
     }
 
     @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        // Guard: entityData may not be initialised yet during early Entity construction.
+        if (entityData != null && !isPlacedOnGround()) {
+            if (isCeiling()) {
+                return EntityDimensions.fixed(0.5f, 0.5f).withEyeHeight(-0.6015625f);
+            }
+            // Wall mount: eye at body-centre height above entity (bracket pivot).
+            return EntityDimensions.fixed(0.5f, 0.5f).withEyeHeight(0.19115625f);
+        }
+        return super.getDimensions(pose);
+    }
+
+    @Override
     protected AABB makeBoundingBox() {
         if (isPlacedOnGround()) {
             double hw = 0.25;
             return new AABB(getX()-hw, getY(), getZ()-hw, getX()+hw, getY()+1.25, getZ()+hw);
+        } else if (isCeiling()) {
+            // 0.8× scale, top face flush with ceiling block (getY()+0.30).
+            return new AABB(getX()-0.36, getY()-0.46, getZ()-0.36,
+                            getX()+0.36, getY()+0.30, getZ()+0.36);
         } else {
-            // Wall: 0.9 wide/tall in the attachment plane, 0.8 deep perpendicular to wall.
-            double halfTall = 0.45;
-            double halfWide = 0.45;
-            double halfDeep = 0.425;
-            // Determine depth axis from entity yaw (outward-facing after the yRot fix).
-            double abscos = Math.abs(Math.cos(Math.toRadians(getYRot())));
-            double abssin = Math.abs(Math.sin(Math.toRadians(getYRot())));
-            double hx = (abscos > abssin) ? halfWide : halfDeep;
-            double hz = (abscos > abssin) ? halfDeep : halfWide;
-            return new AABB(getX()-hx, getY()-halfTall, getZ()-hz,
-                            getX()+hx, getY()+halfTall, getZ()+hz);
+            // Wall: entity sits at the bracket pivot (0.488 from block face).
+            // Hitbox extends from block face (-0.488 in outward dir) to camera front (+0.2 outward).
+            double wallGap   = 0.488;
+            double frontDepth = 0.2;
+            double halfWide  = 0.36;
+            double halfTall  = 0.36;
+            double yawRad    = Math.toRadians(getWallYaw());
+            double outX      = -Math.sin(yawRad);
+            double outZ      =  Math.cos(yawRad);
+            return new AABB(
+                getX() + Math.min(-outX * wallGap, outX * frontDepth) - Math.abs(outZ) * halfWide,
+                getY() - halfTall,
+                getZ() + Math.min(-outZ * wallGap, outZ * frontDepth) - Math.abs(outX) * halfWide,
+                getX() + Math.max(-outX * wallGap, outX * frontDepth) + Math.abs(outZ) * halfWide,
+                getY() + halfTall,
+                getZ() + Math.max(-outZ * wallGap, outZ * frontDepth) + Math.abs(outX) * halfWide
+            );
         }
     }
 

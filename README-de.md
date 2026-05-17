@@ -18,6 +18,7 @@ Das **Kamera**-Item (Kreativmenü → Werkzeuge & Hilfsmittel) in die Hand nehme
 
 - **Auf einer ebenen Fläche** — stellt eine Stativkamera auf dem Boden auf, Linse zeigt zum Spieler hin.
 - **An einer Wand** — befestigt die Kamera an der Wand, Linse zeigt nach außen.
+- **An der Decke** — befestigt die Kamera an der Unterseite eines Blocks. Eine zentrierte Platte greift am Block darüber; ein Stab hängt herunter zum Schwenk-Neige-Kopf.
 
 Die Kamera ist eine serverseitige Entität: alle Spieler auf dem Server sehen sie.
 
@@ -27,6 +28,7 @@ Benutzen auf einer freien Kamera wechselt die Sicht auf diese Kamera. Während m
 
 - Die eigene Spielfigur bleibt an ihrem Platz (für andere Spieler und auf eigenen Screenshots sichtbar).
 - Maus- bzw. Stick-Eingabe dreht die Kamerasicht.
+- Scroll-Rad oder **W / S** zoomt heran und heraus (12–200 mm äquivalente Brennweite, im Sucher-HUD angezeigt). Der Zoom wird pro Kamera gespeichert und beim nächsten Betreten wiederhergestellt. Das Linsensystem fährt am Modell sichtbar aus.
 - Bewegungseingaben werden unterdrückt — die Kamera ist fest montiert.
 - Das normale HUD (Schnellleiste, Fadenkreuz, Statusanzeigen) wird ausgeblendet.
 - **Schleichen** beendet die Kamerasicht und kehrt zur eigenen Spielfigur zurück.

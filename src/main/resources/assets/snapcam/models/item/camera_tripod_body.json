@@ -7,8 +7,9 @@
   },
   "elements": [
     {
+      "comment": "Camera body — front face exposed when lens assembly extends.",
       "from": [3, 16, 1.5],
-      "to":   [13, 26, 14.5],
+      "to":   [13, 26, 12.75],
       "faces": {
         "north": {"uv": [0, 0, 16, 16], "texture": "#back"},
         "south": {"uv": [0, 0, 16, 16], "texture": "#front"},

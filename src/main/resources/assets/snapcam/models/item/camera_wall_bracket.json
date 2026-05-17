@@ -1,0 +1,55 @@
+{
+  "textures": {
+    "particle":    "snapcam:item/camera_wall_bracket_plate_face",
+    "plate_face":  "snapcam:item/camera_wall_bracket_plate_face",
+    "plate_long":  "snapcam:item/camera_wall_bracket_plate_long_edge",
+    "plate_short": "snapcam:item/camera_wall_bracket_plate_short_edge",
+    "rod_face":    "snapcam:item/camera_rod_face",
+    "rod12":       "snapcam:item/camera_rod12",
+    "rod7":        "snapcam:item/camera_rod7"
+  },
+  "elements": [
+    {
+      "comment": "Wall plate — 11x8x2 vis px (13.75x10x2.5 model). Flush with wall face (z=8), centered on x=8.",
+      "from": [1.125, 0, 8],
+      "to":   [14.875, 10, 10.5],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#plate_face"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#plate_face"},
+        "east":  {"uv": [0, 0, 16, 16], "texture": "#plate_short"},
+        "west":  {"uv": [0, 0, 16, 16], "texture": "#plate_short"},
+        "up":    {"uv": [0, 0, 16, 16], "texture": "#plate_long"},
+        "down":  {"uv": [0, 0, 16, 16], "texture": "#plate_long"}
+      }
+    },
+    {
+      "comment": "Horizontal arm — 3x3x12 vis px (3.75x3.75x15 model). 1 vis px from plate bottom. Starts at plate outer face z=10.5.",
+      "from": [6.125, 1.25, 10.5],
+      "to":   [9.875, 5.0, 25.5],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#rod_face"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#rod_face"},
+        "east":  {"uv": [0, 0, 16, 16], "texture": "#rod12"},
+        "west":  {"uv": [0, 0, 16, 16], "texture": "#rod12"},
+        "up":    {"uv": [0, 0, 16, 16], "texture": "#rod12"},
+        "down":  {"uv": [0, 0, 16, 16], "texture": "#rod12"}
+      }
+    },
+    {
+      "comment": "Vertical arm — 3x7x3 vis px (3.75x8.75x3.75 model). Bottom flush with H-arm top. Pivot centre top (8,13.75,23.625) → world z=+0.188 outward.",
+      "from": [6.125, 5.0, 21.75],
+      "to":   [9.875, 13.75, 25.5],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#rod7", "rotation": 90},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#rod7", "rotation": 90},
+        "east":  {"uv": [0, 0, 16, 16], "texture": "#rod7", "rotation": 90},
+        "west":  {"uv": [0, 0, 16, 16], "texture": "#rod7", "rotation": 90},
+        "up":    {"uv": [0, 0, 16, 16], "texture": "#rod_face"},
+        "down":  {"uv": [0, 0, 16, 16], "texture": "#rod_face"}
+      }
+    }
+  ],
+  "display": {
+    "fixed": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]}
+  }
+}

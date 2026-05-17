@@ -10,6 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.snapcam.client.CameraEntityRenderer;
@@ -25,6 +28,11 @@ public class SnapcamClient implements ClientModInitializer {
     private boolean prevUseDown = false;
     private boolean prevSneakDown = false;
 
+    private static final ResourceLocation CAMERA_REACH_ID =
+            ResourceLocation.fromNamespaceAndPath("snapcam", "camera_reach");
+    // Default entity reach is 3 (survival) or 4.5 (creative); +17 brings both to ~20.
+    private static final double CAMERA_REACH_BONUS = 17.0;
+
     @Override
     public void onInitializeClient() {
         EntityRendererRegistry.register(ModEntities.CAMERA, CameraEntityRenderer::new);
@@ -34,6 +42,19 @@ public class SnapcamClient implements ClientModInitializer {
 
         // Intercept clicks BEFORE Minecraft.handleKeybinds() consumes them
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            // Extended reach when holding the camera item so placed cameras are targetable at ~20 blocks.
+            if (client.player != null) {
+                var reachAttr = client.player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE);
+                if (reachAttr != null) {
+                    if (client.player.getMainHandItem().getItem() == ModItems.CAMERA_ITEM) {
+                        reachAttr.addOrUpdateTransientModifier(new AttributeModifier(
+                                CAMERA_REACH_ID, CAMERA_REACH_BONUS, AttributeModifier.Operation.ADD_VALUE));
+                    } else {
+                        reachAttr.removeModifier(CAMERA_REACH_ID);
+                    }
+                }
+            }
+
             // Rising-edge detection for Use and Sneak — fires once per press for both
             // keyboard (consumeClick) and controller (isDown edge via Controlify).
             boolean useDown = client.options.keyUse.isDown();
@@ -54,6 +75,9 @@ public class SnapcamClient implements ClientModInitializer {
                     EntityCameraController.requestExit();
                     return;
                 }
+                // Forward/back = zoom in/out (linear in focal-length mm)
+                if (client.options.keyUp.isDown())   EntityCameraController.adjustZoom( 1);
+                if (client.options.keyDown.isDown()) EntityCameraController.adjustZoom(-1);
                 // Placed camera: Use = screenshot, Attack = suppress
                 if (useJustPressed && EntityCameraController.canShoot()) {
                     EntityCameraController.requestScreenshot();
@@ -207,12 +231,15 @@ public class SnapcamClient implements ClientModInitializer {
         // Centre crosshair
         renderCrosshair(g, cx, cy, Math.min(w, h));
 
-        // Top-centre: shutter / aperture / ISO
-        String info = SHUTTER_VALS[SHUTTER_IDX] + "   f/" + FSTOP_VALS[FSTOP_IDX] + "   ISO " + ISO_VALS[ISO_IDX];
+        // Top-centre: focal length / shutter / aperture / ISO
+        int focalMm = EntityCameraController.isActive()
+                ? EntityCameraController.getZoomFocalMm()
+                : (int) Math.round(18.0 / Math.tan(Math.toRadians((float)(int) mc.options.fov().get() / 2.0)));
+        String info = focalMm + "mm   " + SHUTTER_VALS[SHUTTER_IDX] + "   f/" + FSTOP_VALS[FSTOP_IDX] + "   ISO " + ISO_VALS[ISO_IDX];
         g.drawString(font, info, cx - font.width(info) / 2, my + 4, WHITE, false);
 
-        // Bottom: ±3 EV exposure bar
-        renderExposureBar(g, font, cx, h - my - font.lineHeight - 18, w);
+        // Bottom: ±3 EV exposure bar — rule flush with outer-L bottom, triangle below
+        renderExposureBar(g, font, cx, h - my, w);
     }
 
     // ── L-corner brackets ────────────────────────────────────────────────────
