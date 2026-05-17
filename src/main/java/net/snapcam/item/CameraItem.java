@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.snapcam.entity.CameraEntity;
 import net.snapcam.entity.ModEntities;
@@ -39,14 +40,21 @@ public class CameraItem extends Item {
             if (onGround) {
                 yRot = (float) Math.toDegrees(Math.atan2(-(player.getX() - pos.x), player.getZ() - pos.z));
             } else {
-                // Lens faces outward from the wall (opposite of the wall's face direction)
-                yRot = face.getOpposite().toYRot();
+                // Entity faces outward from the wall (matches face normal direction).
+                yRot = face.toYRot();
+            }
+
+            // Reject if a camera is already occupying this spot
+            AABB check = new AABB(pos.x - 0.5, pos.y - 0.5, pos.z - 0.5,
+                                  pos.x + 0.5, pos.y + 0.5, pos.z + 0.5);
+            if (!level.getEntitiesOfClass(CameraEntity.class, check).isEmpty()) {
+                return InteractionResult.FAIL;
             }
 
             CameraEntity camera = new CameraEntity(ModEntities.CAMERA, level);
-            camera.moveTo(pos.x, pos.y, pos.z, yRot, 0.0f);
             camera.setNoGravity(true);
             camera.setPlacedOnGround(onGround);
+            camera.moveTo(pos.x, pos.y, pos.z, yRot, 0.0f);
             level.addFreshEntity(camera);
 
             if (!player.isCreative()) {

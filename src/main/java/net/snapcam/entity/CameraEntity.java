@@ -2,6 +2,7 @@ package net.snapcam.entity;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -130,6 +131,26 @@ public class CameraEntity extends Entity {
     @Override
     public boolean canBeCollidedWith() {
         return true;
+    }
+
+    @Override
+    protected AABB makeBoundingBox() {
+        if (isPlacedOnGround()) {
+            double hw = 0.25;
+            return new AABB(getX()-hw, getY(), getZ()-hw, getX()+hw, getY()+1.25, getZ()+hw);
+        } else {
+            // Wall: 0.9 wide/tall in the attachment plane, 0.8 deep perpendicular to wall.
+            double halfTall = 0.45;
+            double halfWide = 0.45;
+            double halfDeep = 0.425;
+            // Determine depth axis from entity yaw (outward-facing after the yRot fix).
+            double abscos = Math.abs(Math.cos(Math.toRadians(getYRot())));
+            double abssin = Math.abs(Math.sin(Math.toRadians(getYRot())));
+            double hx = (abscos > abssin) ? halfWide : halfDeep;
+            double hz = (abscos > abssin) ? halfDeep : halfWide;
+            return new AABB(getX()-hx, getY()-halfTall, getZ()-hz,
+                            getX()+hx, getY()+halfTall, getZ()+hz);
+        }
     }
 
     @Override

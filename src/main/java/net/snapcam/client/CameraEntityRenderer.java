@@ -53,8 +53,8 @@ public class CameraEntityRenderer extends EntityRenderer<CameraEntity> {
             );
             poseStack.popPose();
         } else {
-            // Wall mount: single pass, body rotated outward from wall.
-            poseStack.mulPose(Axis.YP.rotationDegrees(-entity.getYRot()));
+            // Wall mount: lens is the model's -Z face; add 180° so it faces outward with the entity.
+            poseStack.mulPose(Axis.YP.rotationDegrees(-entity.getYRot() - 180));
             poseStack.scale(0.5f, 0.5f, 0.5f);
             Minecraft.getInstance().getItemRenderer().renderStatic(
                     new ItemStack(ModItems.CAMERA_ITEM),

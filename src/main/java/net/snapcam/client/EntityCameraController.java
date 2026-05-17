@@ -30,6 +30,18 @@ public final class EntityCameraController {
 
     public static boolean canShoot() { return active && attachCooldown == 0; }
 
+    private static final class LockedInput extends net.minecraft.client.player.KeyboardInput {
+        LockedInput(net.minecraft.client.Options opts) { super(opts); }
+        @Override
+        public void tick(boolean slowDown, float riftShield) {
+            super.tick(slowDown, riftShield);
+            forwardImpulse = 0; leftImpulse = 0;
+            up = false; down = false; left = false; right = false;
+            jumping = false;
+            // shiftKeyDown preserved — needed for sneak-to-exit detection
+        }
+    }
+
     public static void attach(int cameraEntityId) {
         if (active) detach();
         attachCooldown = ATTACH_COOLDOWN;
@@ -55,13 +67,12 @@ public final class EntityCameraController {
             viewZ   = cameraEntity.getZ() + lookZ * 0.20;
             viewYaw = cameraEntity.getYRot();
         } else {
-            // Wall: lens is the north (model -Z) face, effective scale 1.0.
+            // Wall: entity now faces outward; place viewer behind the lens (inward side).
             // Lens centre world Y = entity.getY() (model centre = no vertical offset).
-            // Lens is 0.4 blocks in the -look direction; place view just inside.
             viewX   = cameraEntity.getX() - lookX * 0.35;
             viewY   = cameraEntity.getY();
             viewZ   = cameraEntity.getZ() - lookZ * 0.35;
-            viewYaw = cameraEntity.getYRot() + 180;
+            viewYaw = cameraEntity.getYRot();
         }
 
         viewEntity = new CameraViewEntity(
@@ -82,6 +93,7 @@ public final class EntityCameraController {
         MC.options.setCameraType(CameraType.THIRD_PERSON_BACK);
 
         MC.setCameraEntity(viewEntity);
+        if (MC.player != null) MC.player.input = new LockedInput(MC.options);
         active = true;
         attachedEntityId = cameraEntityId;
     }
@@ -146,16 +158,7 @@ public final class EntityCameraController {
         }
 
         // Sneak-to-exit is handled in START_CLIENT_TICK (SnapcamClient) for controller compat.
-
-        // Keep player body still: clear movement input each tick
-        var inp = MC.player.input;
-        inp.forwardImpulse = 0;
-        inp.leftImpulse = 0;
-        inp.up = false;
-        inp.down = false;
-        inp.left = false;
-        inp.right = false;
-        inp.jumping = false;
+        // Movement suppression (including jump) is handled by LockedInput installed on attach.
     }
 
     public static void redirectTurn(double yaw, double pitch) {
