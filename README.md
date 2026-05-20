@@ -158,6 +158,7 @@ src/main/java/net/snapcam/
 ├── client/
 │   ├── EntityCameraController.java # Manages POV attachment to a placed camera
 │   ├── HandCameraController.java   # Manages hand-held photo mode
+│   ├── SnapcamInput.java           # Input proxy: delegates to wrapped input then suppresses movement
 │   ├── TimedShotController.java    # 5-second countdown state machine
 │   ├── CameraViewEntity.java       # Fake client-side entity that holds camera position/rotation
 │   ├── CameraEntityRenderer.java   # Two-pass renderer: fixed legs + rotating body

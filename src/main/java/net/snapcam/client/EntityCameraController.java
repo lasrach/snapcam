@@ -5,8 +5,8 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Screenshot;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.Input;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.snapcam.entity.CameraEntity;
@@ -27,12 +27,19 @@ public final class EntityCameraController {
     private static float wallYaw = 0f;
     private static boolean isCeilingCamera = false;
 
+    private static Input savedInput = null;
+
     private static boolean screenshotPending = false;
     private static boolean timedShotMode = false;
     private static int flashTicks = 0;
     private static final int FLASH_DURATION = 6;
     private static int attachCooldown = 0;
     private static final int ATTACH_COOLDOWN = 3;
+
+    // Captured by SnapcamInput.tick() before zeroing, so START_CLIENT_TICK can use it for zoom.
+    private static float capturedForwardImpulse = 0f;
+    public static float getCapturedForwardImpulse() { return capturedForwardImpulse; }
+    public static void setCapturedForwardImpulse(float v) { capturedForwardImpulse = v; }
 
     // Focal length stored in mm (double for smooth log stepping); FOV derived on demand.
     // 35mm equivalent: f = 18 / tan(FOV_rad/2).  Zoom steps multiplicatively (log-linear).
@@ -68,17 +75,6 @@ public final class EntityCameraController {
         }
     }
 
-    private static final class LockedInput extends net.minecraft.client.player.KeyboardInput {
-        LockedInput(net.minecraft.client.Options opts) { super(opts); }
-        @Override
-        public void tick(boolean slowDown, float riftShield) {
-            super.tick(slowDown, riftShield);
-            forwardImpulse = 0; leftImpulse = 0;
-            up = false; down = false; left = false; right = false;
-            jumping = false;
-            // shiftKeyDown preserved — needed for sneak-to-exit detection
-        }
-    }
 
     public static void attach(int cameraEntityId) {
         if (active) detach();
@@ -174,9 +170,13 @@ public final class EntityCameraController {
         MC.options.setCameraType(CameraType.THIRD_PERSON_BACK);
 
         MC.setCameraEntity(viewEntity);
-        if (MC.player != null) MC.player.input = new LockedInput(MC.options);
         active = true;
         attachedEntityId = cameraEntityId;
+
+        if (MC.player != null) {
+            savedInput = MC.player.input;
+            MC.player.input = new SnapcamInput(savedInput);
+        }
     }
 
     /** Attaches to a camera entity for a timed shot — immediately requests a screenshot and auto-detaches. */
@@ -205,7 +205,11 @@ public final class EntityCameraController {
         isCeilingCamera = false;
         wallYaw = 0f;
         MC.smartCull = true;
-        if (MC.player != null) MC.setCameraEntity(MC.player);
+        if (MC.player != null) {
+            MC.setCameraEntity(MC.player);
+            if (savedInput != null) MC.player.input = savedInput;
+        }
+        savedInput = null;
         if (prevCameraType != null) {
             MC.options.setCameraType(prevCameraType);
             prevCameraType = null;
@@ -216,9 +220,7 @@ public final class EntityCameraController {
             }
             viewEntity = null;
         }
-        if (MC.player != null) {
-            MC.player.input = new net.minecraft.client.player.KeyboardInput(MC.options);
-        }
+
         active = false;
         attachedEntityId = -1;
     }
@@ -296,7 +298,7 @@ public final class EntityCameraController {
         }
 
         // Sneak-to-exit is handled in START_CLIENT_TICK (SnapcamClient) for controller compat.
-        // Movement suppression (including jump) is handled by LockedInput installed on attach.
+        // Movement suppression (including jump) is handled by SnapcamInput installed on attach.
     }
 
     public static void redirectTurn(double yaw, double pitch) {

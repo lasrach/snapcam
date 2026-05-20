@@ -63,10 +63,11 @@ public class SnapcamClient implements ClientModInitializer {
             prevUseDown = useDown;
 
             // Sneak: combine key binding, player entity state, and rising-edge.
-            boolean sneakDown = client.options.keyShift.isDown()
-                    || (client.player != null && client.player.isShiftKeyDown());
-            boolean sneakJustPressed = client.options.keyShift.consumeClick()
-                    || (sneakDown && !prevSneakDown);
+            boolean kShiftDown   = client.options.keyShift.isDown();
+            boolean pShiftDown   = client.player != null && client.player.isShiftKeyDown();
+            boolean sneakDown    = kShiftDown || pShiftDown;
+            boolean consumeClick = client.options.keyShift.consumeClick();
+            boolean sneakJustPressed = consumeClick || (sneakDown && !prevSneakDown);
             prevSneakDown = sneakDown;
 
             if (EntityCameraController.isActive()) {
@@ -75,9 +76,12 @@ public class SnapcamClient implements ClientModInitializer {
                     EntityCameraController.requestExit();
                     return;
                 }
-                // Forward/back = zoom in/out (linear in focal-length mm)
-                if (client.options.keyUp.isDown())   EntityCameraController.adjustZoom( 1);
-                if (client.options.keyDown.isDown()) EntityCameraController.adjustZoom(-1);
+                // Forward/back = zoom. keyUp/keyDown for keyboard; forwardImpulse for controller
+                // (Controlify sets forwardImpulse directly, not via keyUp KeyMapping).
+                // Captured by SnapcamInput.tick() before movement suppression, so it's always fresh.
+                float fwd = EntityCameraController.getCapturedForwardImpulse();
+                if (client.options.keyUp.isDown()   || fwd >  0.1f) EntityCameraController.adjustZoom( 1);
+                if (client.options.keyDown.isDown() || fwd < -0.1f) EntityCameraController.adjustZoom(-1);
                 // Placed camera: Use = screenshot, Attack = suppress
                 if (useJustPressed && EntityCameraController.canShoot()) {
                     EntityCameraController.requestScreenshot();
@@ -85,13 +89,18 @@ public class SnapcamClient implements ClientModInitializer {
                 client.options.keyAttack.consumeClick();
 
             } else if (HandCameraController.isActive()) {
-                // Hand photo mode: sneak released = exit, Use = shoot, Attack = suppress
-                if (!sneakDown) {
+                // Hand photo mode: sneak released = exit, Use = shoot, Attack/Use = suppress.
+                // lastSneakState is shiftKeyDown captured by SnapcamInput.tick() before it zeroes
+                // it (to suppress creative fly-down). Without it, sneakDown would be false
+                // every tick and the mode would immediately exit.
+                boolean handSneakDown = sneakDown || HandCameraController.getLastSneakState();
+                if (!handSneakDown) {
                     HandCameraController.exit();
                 } else if (HandCameraController.canShoot() && useJustPressed) {
                     HandCameraController.requestScreenshot();
                 }
                 client.options.keyAttack.consumeClick();
+                client.options.keyUse.consumeClick();
 
             } else {
                 // Detect sneak+Use on a placed camera entity → start timed shot countdown.

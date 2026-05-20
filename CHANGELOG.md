@@ -27,8 +27,11 @@
 - Handheld mode: pressing Use while aimed at a valid block face was placing an
   additional camera entity at the same time as shooting. Fixed.
 - Handheld mode: holding Shift in creative flight caused the player to fly
-  downward while in photo mode. Fixed by suppressing `shiftKeyDown` in the
-  custom input handler installed on enter.
+  downward while in photo mode. Fixed.
+- Controller / Steam Deck (Controlify): sneak-to-exit now works correctly from
+  placed camera view.
+- Controller / Steam Deck: jump is fully suppressed while in placed camera view.
+- Controller / Steam Deck: creative fly-down is suppressed in handheld mode.
 
 ---
 

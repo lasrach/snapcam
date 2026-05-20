@@ -3,8 +3,7 @@ package net.snapcam.client;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
-import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.client.player.Input;
 
 @Environment(EnvType.CLIENT)
 public final class HandCameraController {
@@ -12,29 +11,36 @@ public final class HandCameraController {
     private static int enterCooldown = 0;
     private static boolean screenshotPending = false;
     private static int flashTicks = 0;
+    private static Input savedInput = null;
     public static final int FLASH_DURATION = 6;
 
-    private static final class HandInput extends KeyboardInput {
-        HandInput(Options opts) { super(opts); }
-        @Override
-        public void tick(boolean slowDown, float riftShield) {
-            super.tick(slowDown, riftShield);
-            shiftKeyDown = false; // suppress creative fly-down while shooting handheld
-        }
-    }
+    // Sneak state captured by SnapcamInput.tick() before shiftKeyDown is zeroed
+    // (to suppress creative fly-down). Used by SnapcamClient for exit detection.
+    private static boolean lastSneakState = false;
+    public static boolean getLastSneakState() { return lastSneakState; }
+    public static void captureLastSneakState(boolean v) { lastSneakState = v; }
 
     public static void enter() {
         active = true;
         enterCooldown = 2;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc != null && mc.player != null) mc.player.input = new HandInput(mc.options);
+        try {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc != null && mc.player != null) {
+                savedInput = mc.player.input;
+                mc.player.input = new SnapcamInput(savedInput);
+            }
+        } catch (Exception ignored) {}
     }
 
     public static void exit() {
         active = false;
         enterCooldown = 0;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc != null && mc.player != null) mc.player.input = new KeyboardInput(mc.options);
+        lastSneakState = false;
+        try {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc != null && mc.player != null && savedInput != null) mc.player.input = savedInput;
+        } catch (Exception ignored) {}
+        savedInput = null;
     }
 
     public static boolean isActive()  { return active; }
